@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ตะกร้าสินค้า - สั่งอาหารออนไลน์">
+  <title>
+    <%= title %>
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            dark: {
+              900: '#0a0a0f',
+              800: '#12121a',
+              700: '#16161f',
+              600: '#1c1c28'
+            }
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.8s ease-out forwards',
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-dark-900 text-gray-100 font-sans antialiased selection:bg-orange-500 selection:text-white">
+
+  <!-- Navigation -->
+  <nav id="navbar"
+    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-dark-900/85 backdrop-blur-md border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-6 h-18 flex justify-between items-center py-4">
+      <a href="/"
+        class="text-orange-500 text-2xl font-bold flex items-center gap-2 hover:text-orange-400 hover:scale-105 transition-all">
+        <span
+          class="w-9 h-9 rounded-lg flex items-center justify-center text-lg shadow-[0_4px_15px_rgba(249,115,22,0.3)] bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 text-white">🍽️</span>
+        Favorite
+      </a>
+      <div class="hidden md:flex items-center gap-2">
+        <a href="/" class="text-gray-100 bg-white/5 px-4 py-2 rounded-lg font-medium text-sm transition-all">หน้าแรก</a>
+        <a href="/about" class="text-gray-100 bg-white/5 px-4 py-2 rounded-lg font-medium text-sm transition-all">เกี่ยวกับเรา</a>
+      </div>
+      <a href="/cart"
+        class="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-[0_4px_15px_rgba(249,115,22,0.3)] hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(249,115,22,0.4)]">
+        🛒 ตะกร้า
+        <span id="cart-count"
+          class="bg-white text-orange-500 text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Cart Container -->
+  <div class="max-w-6xl mx-auto px-6 pt-32 pb-16 animate-fade-up">
+    <div class="flex items-center gap-3 mb-8">
+      <span class="text-3xl">🛒</span>
+      <h1 class="text-3xl font-bold">ตะกร้าสินค้า</h1>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Cart Items -->
+      <div id="cart-items-container" class="lg:col-span-2 flex flex-col gap-4">
+        <!-- Items will be rendered here by JavaScript -->
+      </div>
+
+      <!-- Order Summary -->
+      <div class="lg:col-span-1">
+        <div class="bg-dark-800 border border-gray-800 rounded-2xl p-6 sticky top-28">
+          <h2 class="text-xl font-bold mb-6">สรุปคำสั่งซื้อ</h2>
+
+          <div class="flex justify-between mb-4 text-gray-400">
+            <span id="summary-total-items">ยอดรวม (0 ชิ้น)</span>
+            <span id="summary-subtotal">฿0</span>
+          </div>
+          <div class="flex justify-between mb-4 text-gray-400">
+            <span>ค่าจัดส่ง</span>
+            <span id="summary-shipping">฿0</span>
+          </div>
+          <div class="flex justify-between mb-4 text-green-500" id="summary-discount-row" style="display: none;">
+            <span>ส่วนลดโปรโมชั่น</span>
+            <span id="summary-discount">-฿0</span>
+          </div>
+
+          <hr class="border-gray-700 my-4">
+
+          <div class="flex justify-between items-center mb-8">
+            <span class="text-lg font-semibold">ยอดสุทธิ</span>
+            <span id="summary-total"
+              class="text-2xl font-bold bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">฿0</span>
+          </div>
+
+          <button onclick="checkout()"
+            class="w-full bg-orange-500 hover:bg-orange-400 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_4px_20px_rgba(249,115,22,0.35)] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(249,115,22,0.45)]">
+            ชำระเงิน
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const cartBadge = document.getElementById('cart-count');
+
+    const updateCartBadge = () => {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      cartBadge.textContent = totalItems;
+    };
+
+    // Initialize cart badge
+    updateCartBadge();
+
+    const renderCart = () => {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const container = document.getElementById('cart-items-container');
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="bg-dark-800 border border-gray-800 rounded-2xl p-8 text-center text-gray-400 h-full flex flex-col items-center justify-center min-h-[300px]">
+            <div class="text-6xl mb-4">🛒</div>
+            <p class="text-xl font-medium mb-6">ตะกร้าสินค้าของคุณว่างเปล่า</p>
+            <a href="/" class="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl text-white font-medium transition-colors border border-white/10">กลับไปเลือกเมนูอร่อยๆ กันเลย</a>
+          </div>
+        `;
+        updateSummary(cart);
+        return;
+      }
+
+      container.innerHTML = cart.map((item) => `
+        <div class="bg-dark-800 border border-gray-800 rounded-2xl p-4 flex gap-4 items-center relative group transition-all hover:border-gray-700">
+          <img src="${item.image}" alt="${item.name}" class="w-24 h-24 rounded-xl object-cover shrink-0">
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-gray-100">${item.name}</h3>
+            <div class="text-orange-500 font-bold">฿${item.price}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="flex items-center border border-gray-700 rounded-lg bg-dark-900">
+              <button onclick="updateQuantity('${item.id}', -1)"
+                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-500 rounded-l-lg transition-colors">−</button>
+              <input type="text" value="${item.quantity}" readonly
+                class="w-8 h-8 bg-transparent text-center text-sm font-medium focus:outline-none">
+              <button onclick="updateQuantity('${item.id}', 1)"
+                class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-500 rounded-r-lg transition-colors">+</button>
+            </div>
+            <button onclick="removeItem('${item.id}')" class="text-gray-500 hover:text-red-500 transition-colors p-2" title="ลบสินค้า">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      updateSummary(cart);
+    };
+
+    const updateSummary = (cart) => {
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      let shipping = 0;
+      if (subtotal > 0) {
+        shipping = subtotal > 300 ? 0 : 20;
+      }
+
+      const total = subtotal + shipping;
+
+      document.getElementById('summary-total-items').textContent = `ยอดรวม (${totalItems} ชิ้น)`;
+      document.getElementById('summary-subtotal').textContent = `฿${subtotal}`;
+      document.getElementById('summary-shipping').textContent = shipping === 0 && subtotal > 0 ? 'ส่งฟรี' : `฿${shipping}`;
+      document.getElementById('summary-total').textContent = `฿${total}`;
+    };
+
+    const updateQuantity = (id, change) => {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const itemIndex = cart.findIndex(item => item.id === String(id));
+
+      if (itemIndex > -1) {
+        cart[itemIndex].quantity += change;
+        if (cart[itemIndex].quantity <= 0) {
+          cart.splice(itemIndex, 1);
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      }
+    };
+
+    const removeItem = (id) => {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart = cart.filter(item => item.id !== String(id));
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    };
+
+    const checkout = () => {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      if (cart.length === 0) {
+        alert("ตะกร้าสินค้าว่างเปล่า กรุณาเลือกสินค้าก่อนชำระเงิน");
+        return;
+      }
+      alert("ชำระเงินสำเร็จ! ขอบคุณที่ใช้บริการ");
+      localStorage.removeItem('cart');
+      renderCart();
+    };
+
+    document.addEventListener('DOMContentLoaded', renderCart);
+  </script>
+</body>
+
+</html>

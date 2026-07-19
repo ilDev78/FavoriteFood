@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= title %>
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            dark: {
+              900: '#0a0a0f',
+            }
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.8s ease-out forwards',
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body
+  class="bg-dark-900 text-gray-100 font-sans antialiased min-h-screen flex items-center justify-center selection:bg-orange-500 selection:text-white">
+
+  <div class="text-center animate-fade-up">
+    <div class="text-6xl mb-4">🍜</div>
+    <div
+      class="text-[8rem] font-bold leading-none bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
+      404
+    </div>
+    <p class="text-xl text-gray-400 mt-4 mb-8">ขออภัย! ไม่พบหน้าที่คุณต้องการ</p>
+    <a href="/"
+      class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold py-3.5 px-8 rounded-2xl transition-all shadow-[0_4px_20px_rgba(249,115,22,0.35)] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(249,115,22,0.45)]">
+      ← กลับหน้าแรก
+    </a>
+  </div>
+
+</body>
+
+</html>
